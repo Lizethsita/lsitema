@@ -40,16 +40,17 @@
 													label="Descripcion"
 												></v-text-field>
 											</v-col>
+											
 											<v-col cols="12" sm="6" md="4">
 												<div v-if="true">  
 													<v-text-field class="blue-text" label="Estado">Activo</v-text-field>
-													<!-- <span class="blue--text">Activo</span> -->
+													
 												</div>
 												<div v-else>  
 													<v-text-field class="red--text" label="Estado">Inactivo</v-text-field>
-												</div>
-												
+												</div>												
 											</v-col>
+											
 										</v-row>
 									</v-container>
 								</v-card-text>
@@ -63,6 +64,18 @@
 						</v-dialog>
 					</v-toolbar>
 				</template>
+
+				 <template v-slot:item.condicion="{ item }">
+					<v-chip :color="getColor(item.condicion)" dark>						
+						<template v-if="item.condicion">  
+							Activo							
+						</template>
+						<template v-else>  
+							Inactivo
+						</template>			
+					</v-chip>
+				</template>
+				
 				<template v-slot:item.opciones="{ item }">
 					<v-icon small class="mr-2" @click="editItem(item)">
 						edit
@@ -136,7 +149,7 @@ export default {
 		listar(){
 			let me=this;
 			axios.get('api/Categorias/Listar').then(function(response){
-				//console.log(response);
+				console.log(response);
 				me.categorias = response.data;
 
 			}).catch(function(error){
@@ -245,6 +258,10 @@ export default {
 				this.desserts.push(this.editedItem);
 			}
 			this.close();
+		},
+		getColor (estado) {
+			if (estado) return 'green'
+			else return 'red'
 		}
 	}
 };
