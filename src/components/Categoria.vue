@@ -1,9 +1,15 @@
 <template>
 	<v-layout align-start>
 		<v-flex>
-			<v-data-table :headers="headers" :items="categorias" :search="search" sort-by="calories" class="elevation-1">
+			<v-data-table
+				:headers="headers"
+				:items="categorias"
+				:search="search"
+				sort-by="calories"
+				class="elevation-1"
+			>
 				<template v-slot:top>
-					<v-toolbar flat color="white">
+					<v-toolbar text color="white">
 						<v-toolbar-title>Categorías</v-toolbar-title>
 						<v-divider class="mx-4" inset vertical></v-divider>
 						<v-spacer></v-spacer>
@@ -18,7 +24,7 @@
 						<v-spacer></v-spacer>
 						<v-dialog v-model="dialog" max-width="500px">
 							<template v-slot:activator="{ on }">
-								<v-btn color="primary" dark class="mb-2" v-on="on">New Item</v-btn>
+								<v-btn color="primary" dark class="mb-2" v-on="on">Nuevo</v-btn>
 							</template>
 							<v-card>
 								<v-card-title>
@@ -28,29 +34,30 @@
 								<v-card-text>
 									<v-container>
 										<v-row>
-											<v-col cols="12" sm="6" md="4">
-												<v-text-field
-													v-model="editedItem.nombre"
-													label="Nombre"
-												></v-text-field>
+											<v-col cols="12" sm="12" md="12">
+												<v-text-field v-model="nombre" label="Nombre"></v-text-field>
 											</v-col>
-											<v-col cols="12" sm="6" md="4">
-												<v-text-field
-													v-model="editedItem.descripcion"
-													label="Descripcion"
-												></v-text-field>
+											<v-col cols="12" sm="12" md="12">
+												<v-text-field v-model="descripcion" label="Descripción"></v-text-field>
 											</v-col>
-											
-											<v-col cols="12" sm="6" md="4">
+											<v-col cols="12" sm="12" md="12" v-show="valida">
+												<div
+													class="red--text"
+													v-for="v in validaMensaje"
+													:key="v"
+													v-text="v"
+												></div>
+											</v-col>
+
+											<!-- <v-col cols="12" sm="6" md="4">
 												<div v-if="true">  
-													<v-text-field class="blue-text" label="Estado">Activo</v-text-field>
+													<v-text-field  label="Estado">Activo</v-text-field>
 													
 												</div>
 												<div v-else>  
-													<v-text-field class="red--text" label="Estado">Inactivo</v-text-field>
+													<v-text-field  label="Estado">Inactivo</v-text-field>
 												</div>												
-											</v-col>
-											
+											</v-col> -->
 										</v-row>
 									</v-container>
 								</v-card-text>
@@ -58,34 +65,59 @@
 								<v-card-actions>
 									<v-spacer></v-spacer>
 									<v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
-									<v-btn color="blue darken-1" text @click="save">Guardar</v-btn>
+									<v-btn color="blue darken-1" text @click="guardar">Guardar</v-btn>
+								</v-card-actions>
+							</v-card>
+						</v-dialog>
+						<v-dialog v-model="adModal" max-width="290">
+							<v-card>
+								<v-card-title class="headline" v-if="adAccion == 1">¿Activar Item?</v-card-title>
+								<v-card-title class="headline" v-if="adAccion == 2">¿Desactivar Item?</v-card-title>
+								<v-card-text>
+									Estas a punto de
+									<span v-if="adAccion == 1">Activar</span>
+									<span v-if="adAccion == 2">Desactivar</span>
+									el ítem {{ adNombre }}
+								</v-card-text>
+								<v-card-actions>
+									<v-spacer></v-spacer>
+									<v-btn color="green darken-1" text @click="activarDesactivarCerrar">Cancelar</v-btn>
+									<v-btn v-if="adAccion==1" color="orange darken-4" text @click="activar">Activar</v-btn>
+									<v-btn v-if="adAccion==2" color="orange darken-4" text @click="desactivar">Desactivar</v-btn>
 								</v-card-actions>
 							</v-card>
 						</v-dialog>
 					</v-toolbar>
 				</template>
 
-				 <template v-slot:item.condicion="{ item }">
-					<v-chip :color="getColor(item.condicion)" dark>						
-						<template v-if="item.condicion">  
-							Activo							
+				<template v-slot:item.condicion="{ item }">
+					<v-chip :color="getColor(item.condicion)" dark>
+						<template v-if="item.condicion">
+							Activo
 						</template>
-						<template v-else>  
+						<template v-else>
 							Inactivo
-						</template>			
+						</template>
 					</v-chip>
 				</template>
-				
+
 				<template v-slot:item.opciones="{ item }">
 					<v-icon small class="mr-2" @click="editItem(item)">
 						edit
 					</v-icon>
-					<v-icon small @click="deleteItem(item)">
-						delete
-					</v-icon>
+					<template v-if="item.condicion">
+						<v-icon small @click="activarDesactivarMostrar(2, item)">
+							block
+						</v-icon>
+					</template>
+					<template v-else>
+						<v-icon small @click="activarDesactivarMostrar(1, item)">
+							check
+						</v-icon>
+					</template>
 				</template>
 				<template v-slot:no-data>
-					<v-btn color="primary" @click="initialize">Resetear</v-btn>
+					<v-btn color="primary" @click="listar">Resetear</v-btn>
 				</template>
 			</v-data-table>
 		</v-flex>
@@ -93,148 +125,67 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from 'axios';
 export default {
 	data() {
 		return {
-			categorias:[], 
+			categorias: [],
 			dialog: false,
 			headers: [
-				
 				{ text: 'Nombre', value: 'nombre' },
 				{ text: 'Descripción', value: 'descripcion', sortable: false },
 				{ text: 'Estado', value: 'condicion', sortable: false },
 				{ text: 'Opciones', value: 'opciones', sortable: false },
-				
 			],
 			search: '',
-			desserts: [],
 			editedIndex: -1,
-			editedItem: {
-				name: '',
-				calories: 0,
-				fat: 0,
-				carbs: 0,
-				protein: 0
-			},
-			defaultItem: {
-				name: '',
-				calories: 0,
-				fat: 0,
-				carbs: 0,
-				protein: 0
-			}
+			id: '',
+			nombre: '',
+			descripcion: '',
+			valida: 0,
+			validaMensaje: [],
+			adModal: 0,
+			adAccion: 0,
+			adNombre: '',
+			adId: '',
 		};
 	},
 
 	computed: {
 		formTitle() {
-			return this.editedIndex === -1 ? 'New Item' : 'Edit Item';
-		}
+			return this.editedIndex === -1 ? 'Nueva categoría' : 'Actualizar categoría';
+		},
 	},
 
 	watch: {
 		dialog(val) {
 			val || this.close();
-		}
+		},
 	},
 
 	created() {
 		console.log('inicio');
-		this.initialize();
 		this.listar();
 	},
 
 	methods: {
-		listar(){
-			let me=this;
-			axios.get('api/Categorias/Listar').then(function(response){
-				console.log(response);
-				me.categorias = response.data;
-
-			}).catch(function(error){
-				console.log("error");
-
-			});
+		listar() {
+			let me = this;
+			axios
+				.get('api/Categorias/Listar')
+				.then(function(response) {
+					console.log(response);
+					me.categorias = response.data;
+				})
+				.catch(function(error) {
+					console.log('error');
+				});
 		},
-		initialize() {
-			this.desserts = [
-				{
-					name: 'Frozen Yogurt',
-					calories: 159,
-					fat: 6.0,
-					carbs: 24,
-					protein: 4.0
-				},
-				{
-					name: 'Ice cream sandwich',
-					calories: 237,
-					fat: 9.0,
-					carbs: 37,
-					protein: 4.3
-				},
-				{
-					name: 'Eclair',
-					calories: 262,
-					fat: 16.0,
-					carbs: 23,
-					protein: 6.0
-				},
-				{
-					name: 'Cupcake',
-					calories: 305,
-					fat: 3.7,
-					carbs: 67,
-					protein: 4.3
-				},
-				{
-					name: 'Gingerbread',
-					calories: 356,
-					fat: 16.0,
-					carbs: 49,
-					protein: 3.9
-				},
-				{
-					name: 'Jelly bean',
-					calories: 375,
-					fat: 0.0,
-					carbs: 94,
-					protein: 0.0
-				},
-				{
-					name: 'Lollipop',
-					calories: 392,
-					fat: 0.2,
-					carbs: 98,
-					protein: 0
-				},
-				{
-					name: 'Honeycomb',
-					calories: 408,
-					fat: 3.2,
-					carbs: 87,
-					protein: 6.5
-				},
-				{
-					name: 'Donut',
-					calories: 452,
-					fat: 25.0,
-					carbs: 51,
-					protein: 4.9
-				},
-				{
-					name: 'KitKat',
-					calories: 518,
-					fat: 26.0,
-					carbs: 65,
-					protein: 7
-				}
-			];
-		},
-
 		editItem(item) {
-			this.editedIndex = this.desserts.indexOf(item);
-			this.editedItem = Object.assign({}, item);
+			this.id = item.idcategoria;
+			this.nombre = item.nombre;
+			this.descripcion = item.descripcion;
+			this.editedIndex = 1;
 			this.dialog = true;
 		},
 
@@ -245,24 +196,115 @@ export default {
 
 		close() {
 			this.dialog = false;
-			setTimeout(() => {
-				this.editedItem = Object.assign({}, this.defaultItem);
-				this.editedIndex = -1;
-			}, 300);
+			this.limpiar();
 		},
-
-		save() {
-			if (this.editedIndex > -1) {
-				Object.assign(this.desserts[this.editedIndex], this.editedItem);
-			} else {
-				this.desserts.push(this.editedItem);
+		limpiar() {
+			this.id = '';
+			this.nombre = '';
+			this.descripcion = '';
+			this.editedIndex = -1;
+		},
+		guardar() {
+			if (this.validar()) {
+				return;
 			}
-			this.close();
+			if (this.editedIndex > -1) {
+				//Código para editar
+				let me = this;
+				axios
+					.put('api/Categorias/Actualizar', {
+						idcategoria: me.id,
+						nombre: me.nombre,
+						descripcion: me.descripcion,
+					})
+					.then(function(response) {
+						me.close();
+						me.listar();
+						me.limpiar();
+					})
+					.catch(function(error) {
+						console.log(error);
+					});
+			} else {
+				//Código para guardar
+				let me = this;
+				axios
+					.post('api/Categorias/Crear', {
+						nombre: me.nombre,
+						descripcion: me.descripcion,
+					})
+					.then(function(response) {
+						me.close();
+						me.listar();
+						me.limpiar();
+					})
+					.catch(function(error) {
+						console.log(error);
+					});
+			}
 		},
-		getColor (estado) {
-			if (estado) return 'green'
-			else return 'red'
-		}
-	}
+		validar() {
+			this.valida = 0;
+			this.validaMensaje = [];
+			if (this.nombre.length < 3 || this.nombre.length > 50) {
+				this.validaMensaje.push('El nombre deber tener más de 3 caracteres y menos de 50 caracteres');
+			}
+			if (this.validaMensaje.length) {
+				this.valida = 1;
+			}
+			return this.valida;
+		},
+		activarDesactivarMostrar(accion, item) {
+			this.adModal = 1;
+			this.adNombre = item.nombre;
+			this.adId = item.idcategoria;
+			if (accion == 1) {
+				this.adAccion = 1;
+			} else if (accion == 2) {
+				this.adAccion = 2;
+			} else {
+				this.adAccion = 0;
+			}
+		},
+		activarDesactivarCerrar(){
+			this.adModal=0;
+		},
+		activar() {
+			let me = this;
+			axios
+				.put('api/Categorias/Activar/' + this.adId, {})
+				.then(function(response) {
+					me.adModal=0;
+					me.adAccion=0;
+					me.adNombre="";
+					me.adId="";
+					me.listar();
+				
+				})
+				.catch(function(error) {
+					console.log(error);
+				});
+		},
+		desactivar() {
+			let me = this;
+			axios
+				.put('api/Categorias/Desactivar/' + this.adId, {})
+				.then(function(response) {
+					me.adModal=0;
+					me.adAccion=0;
+					me.adNombre="";
+					me.adId="";
+					me.listar();
+				
+				})
+				.catch(function(error) {
+					console.log(error);
+				});
+		},
+		getColor(estado) {
+			if (estado) return 'green';
+			else return 'red';
+		},
+	},
 };
 </script>
