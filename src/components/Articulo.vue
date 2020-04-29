@@ -3,14 +3,14 @@
 		<v-flex>
 			<v-data-table
 				:headers="headers"
-				:items="categorias"
+				:items="articulos"
 				:search="search"
 				sort-by="calories"
 				class="elevation-1"
 			>
 				<template v-slot:top>
 					<v-toolbar text color="white">
-						<v-toolbar-title>Categorías</v-toolbar-title>
+						<v-toolbar-title>Artículos</v-toolbar-title>
 						<v-divider class="mx-4" inset vertical></v-divider>
 						<v-spacer></v-spacer>
 						<v-text-field
@@ -34,8 +34,20 @@
 								<v-card-text>
 									<v-container>
 										<v-row>
+											<v-col cols="6" sm="6" md="6">
+												<v-text-field v-model="codigo" label="Código"></v-text-field>
+											</v-col>
+											<v-col cols="6" sm="6" md="6">
+												<v-select v-model="idcategoria" :items="categorias" label="Categoría"></v-select>
+											</v-col>
 											<v-col cols="12" sm="12" md="12">
 												<v-text-field v-model="nombre" label="Nombre"></v-text-field>
+											</v-col>
+											<v-col cols="6" sm="6" md="6">
+												<v-text-field type="number" v-model="stock" label="Stock"></v-text-field>
+											</v-col>
+											<v-col cols="6" sm="6" md="6">
+												<v-text-field type="number" v-model="precio_venta" label="Precio Venta"></v-text-field>
 											</v-col>
 											<v-col cols="12" sm="12" md="12">
 												<v-text-field v-model="descripcion" label="Descripción"></v-text-field>
@@ -119,18 +131,27 @@ import axios from 'axios';
 export default {
 	data() {
 		return {
-			categorias: [],
+			articulos: [],
 			dialog: false,
 			headers: [
+				{ text: 'Código', value: 'codigo', sortable: false },
 				{ text: 'Nombre', value: 'nombre' },
+				{ text: 'Categoria', value: 'categoria' },
+				{ text: 'Stock', value: 'stock', sortable: false }, 
+				{ text: 'Precio Venta', value: 'precio_venta', sortable: false },
 				{ text: 'Descripción', value: 'descripcion', sortable: false },
 				{ text: 'Estado', value: 'condicion', sortable: false },
-				{ text: 'Opciones', value: 'opciones', sortable: false },
+				{ text: 'Opciones', value: 'opciones', sortable: false }
 			],
 			search: '',
 			editedIndex: -1,
 			id: '',
+			idcategoria:'',
+			categorias:[],
+			codigo:'',
 			nombre: '',
+			stock:0,
+			precio_venta:0,
 			descripcion: '',
 			valida: 0,
 			validaMensaje: [],
@@ -143,7 +164,7 @@ export default {
 
 	computed: {
 		formTitle() {
-			return this.editedIndex === -1 ? 'Nueva categoría' : 'Actualizar categoría';
+			return this.editedIndex === -1 ? 'Nuevo artículo' : 'Actualizar artículo';
 		},
 	},
 
@@ -156,16 +177,33 @@ export default {
 	created() {
 		console.log('inicio');
 		this.listar();
+		this.select();
 	},
 
 	methods: {
 		listar() {
 			let me = this;
 			axios
-				.get('api/Categorias/Listar')
+				.get('api/Articulos/Listar') 	 	 	
 				.then(function(response) {
 					console.log(response);
-					me.categorias = response.data;
+					me.articulos = response.data;
+				})
+				.catch(function(error) {
+					console.log('error');
+				});
+		},
+		select() {
+			let me = this;
+			var categoriasArray=[];
+			axios
+				.get('api/Categorias/Select') 	 	 	
+				.then(function(response) {
+					console.log(response);
+					categoriasArray=response.data;
+					categoriasArray.map(function(x){
+						me.categorias.push({text: x.nombre,value: x.idcategoria});
+					});
 				})
 				.catch(function(error) {
 					console.log('error');
