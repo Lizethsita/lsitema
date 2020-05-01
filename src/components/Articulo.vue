@@ -218,7 +218,7 @@ export default {
 			this.precio_venta=item.precio_venta;
 			this.descripcion = item.descripcion;
 			this.editedIndex = 1;
-			this.dialog = true;
+			this.dialog = true
 		},
 
 		close() {
@@ -230,8 +230,8 @@ export default {
 			this.idcategoria="";
 			this.codigo="";
 			this.nombre = "";
-			this.stock="";
-			this.precio_venta="";
+			this.stock=0;
+			this.precio_venta=0;
 			this.descripcion = "";
 			this.editedIndex = -1;
 		},
@@ -248,8 +248,8 @@ export default {
                         'idcategoria':me.idcategoria,
                         'codigo':me.codigo,
                         'nombre': me.nombre,
-                        'stock':me.stock,
-                        'precio_venta':me.precio_venta,
+                        'stock':parseInt(me.stock),
+                        'precio_venta':parseFloat(me.precio_venta),
                         'descripcion': me.descripcion
 					})
 					.then(function(response) {
@@ -268,8 +268,8 @@ export default {
 						'idcategoria':me.idcategoria,
                         'codigo':me.codigo,
                         'nombre': me.nombre,
-                        'stock':me.stock,
-                        'precio_venta':me.precio_venta,
+                        'stock':parseInt(me.stock),
+                        'precio_venta':parseFloat(me.precio_venta),
 						'descripcion': me.descripcion
 					})
 					.then(function(response) {
@@ -307,7 +307,7 @@ export default {
 		activarDesactivarMostrar(accion, item) {
 			this.adModal = 1;
 			this.adNombre = item.nombre;
-			this.adId = item.idcategoria;
+			this.adId = item.idarticulo;
 			if (accion == 1) {
 				this.adAccion = 1;
 			} else if (accion == 2) {
@@ -322,7 +322,7 @@ export default {
 		activar() {
 			let me = this;
 			axios
-				.put('api/Categorias/Activar/' + this.adId, {})
+				.put('api/Articulos/Activar/' + this.adId, {})
 				.then(function(response) {
 					me.adModal=0;
 					me.adAccion=0;
@@ -338,7 +338,7 @@ export default {
 		desactivar() {
 			let me = this;
 			axios
-				.put('api/Categorias/Desactivar/' + this.adId, {})
+				.put('api/Articulos/Desactivar/' + this.adId, {})
 				.then(function(response) {
 					me.adModal=0;
 					me.adAccion=0;
