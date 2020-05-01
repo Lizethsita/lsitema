@@ -193,7 +193,7 @@ export default {
 					console.log('error');
 				});
 		},
-		select() {
+		select() { 	
 			let me = this;
 			var categoriasArray=[];
 			axios
@@ -210,16 +210,15 @@ export default {
 				});
 		},
 		editItem(item) {
-			this.id = item.idcategoria;
+			this.id = item.idarticulo;
+			this.idcategoria=item.idcategoria;
+			this.codigo=item.codigo;
 			this.nombre = item.nombre;
+			this.stock=item.stock;
+			this.precio_venta=item.precio_venta;
 			this.descripcion = item.descripcion;
 			this.editedIndex = 1;
 			this.dialog = true;
-		},
-
-		deleteItem(item) {
-			const index = this.desserts.indexOf(item);
-			confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1);
 		},
 
 		close() {
@@ -227,9 +226,13 @@ export default {
 			this.limpiar();
 		},
 		limpiar() {
-			this.id = '';
-			this.nombre = '';
-			this.descripcion = '';
+			this.id = "";
+			this.idcategoria="";
+			this.codigo="";
+			this.nombre = "";
+			this.stock="";
+			this.precio_venta="";
+			this.descripcion = "";
 			this.editedIndex = -1;
 		},
 		guardar() {
@@ -240,10 +243,14 @@ export default {
 				//Código para editar
 				let me = this;
 				axios
-					.put('api/Categorias/Actualizar', {
-						idcategoria: me.id,
-						nombre: me.nombre,
-						descripcion: me.descripcion,
+					.put('api/Articulos/Actualizar', {
+						'idarticulo':me.id,
+                        'idcategoria':me.idcategoria,
+                        'codigo':me.codigo,
+                        'nombre': me.nombre,
+                        'stock':me.stock,
+                        'precio_venta':me.precio_venta,
+                        'descripcion': me.descripcion
 					})
 					.then(function(response) {
 						me.close();
@@ -257,9 +264,13 @@ export default {
 				//Código para guardar
 				let me = this;
 				axios
-					.post('api/Categorias/Crear', {
-						nombre: me.nombre,
-						descripcion: me.descripcion,
+					.post('api/Articulos/Crear', {
+						'idcategoria':me.idcategoria,
+                        'codigo':me.codigo,
+                        'nombre': me.nombre,
+                        'stock':me.stock,
+                        'precio_venta':me.precio_venta,
+						'descripcion': me.descripcion
 					})
 					.then(function(response) {
 						me.close();
@@ -269,13 +280,24 @@ export default {
 					.catch(function(error) {
 						console.log(error);
 					});
+
+					
 			}
 		},
 		validar() {
 			this.valida = 0;
 			this.validaMensaje = [];
 			if (this.nombre.length < 3 || this.nombre.length > 50) {
-				this.validaMensaje.push('El nombre deber tener más de 3 caracteres y menos de 50 caracteres');
+				this.validaMensaje.push('El nombre deber tener más de 3 caracteres y menos de 50 caracteres.');
+			}
+			if(!this.idcategoria){
+				this.validaMensaje.push('Seleccione una categría.');
+			}
+			if(!this.stock || this.stock==0){
+				this.validaMensaje.push('Ingrese el stock inicial del artículo.');
+			}
+			if(!this.precio_venta || this.precio_venta==0){
+				this.validaMensaje.push('Ingrese el precio de venta del artículo.');
 			}
 			if (this.validaMensaje.length) {
 				this.valida = 1;

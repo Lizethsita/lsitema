@@ -189,9 +189,9 @@ export default {
 			this.limpiar();
 		},
 		limpiar() {
-			this.id = '';
-			this.nombre = '';
-			this.descripcion = '';
+			this.id = "";
+			this.nombre = "";
+			this.descripcion = "";
 			this.editedIndex = -1;
 		},
 		guardar() {
