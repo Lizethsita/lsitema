@@ -5,6 +5,8 @@ import Categoria from '../components/Categoria.vue'
 import Articulo from '../components/Articulo.vue'
 import Rol from '../components/Rol.vue'
 import Usuario from '../components/Usuario.vue'
+import Cliente from '../components/Cliente.vue'
+import Proveedor from '../components/Proveedor.vue'
 
 
 Vue.use(VueRouter)
@@ -34,6 +36,16 @@ Vue.use(VueRouter)
     path: '/usuarios',
     name: 'usuarios',
     component: Usuario
+  },
+  {
+    path: '/clientes',
+    name: 'clientes',
+    component: Cliente
+  },
+  {
+    path: '/proveedores',
+    name: 'proveedores',
+    component: Proveedor
   }
   
 ]
