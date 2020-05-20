@@ -1,8 +1,8 @@
 <template>
 	<v-app id="inspire">
-		<v-navigation-drawer v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" fixed app>
+		<v-navigation-drawer v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" fixed app v-if="logueado">
 			<v-list dense>
-				<template>
+				<template v-if="esAdministrador || esAlmacenero || esVendedor">
 					<v-list-item :to="{ name: 'Home' }">
 						<v-list-item-action>
 							<v-icon>home</v-icon>
@@ -12,7 +12,7 @@
 						</v-list-item-title>
 					</v-list-item>
 				</template>
-				<template>
+				<template v-if="esAdministrador || esAlmacenero">
 					<v-list-group>
 						<v-list-item slot="activator">
 							<v-list-item-content>
@@ -43,7 +43,7 @@
 						</v-list-item>
 					</v-list-group>
 				</template>
-				<template>
+				<template v-if="esAdministrador || esAlmacenero">
 					<v-list-group>
 						<v-list-item slot="activator">
 							<v-list-item-content>
@@ -74,7 +74,7 @@
 						</v-list-item>
 					</v-list-group>
 				</template>
-				<template>
+				<template v-if="esAdministrador || esVendedor">
 					<v-list-group>
 						<v-list-item slot="activator">
 							<v-list-item-content>
@@ -105,7 +105,7 @@
 						</v-list-item>
 					</v-list-group>
 				</template>
-				<template>
+				<template v-if="esAdministrador">
 					<v-list-group>
 						<v-list-item slot="activator">
 							<v-list-item-content>
@@ -136,7 +136,7 @@
 						</v-list-item>
 					</v-list-group>
 				</template>
-				<template>
+				<template v-if="esAdministrador">
 					<v-list-group>
 						<v-list-item slot="activator">
 							<v-list-item-content>
@@ -205,6 +205,29 @@ export default {
 		return {
 			drawer: null
 		};
+	},
+	computed: {
+		logueado(){
+			//ontener el usuario
+			return this.$store.state.usuario;
+		},
+		esAdministrador(){
+			return this.$store.state.usuario && this.$store.state.usuario.rol == 'Administrador';
+		},
+		esAlmacenero(){
+			return this.$store.state.usuario && this.$store.state.usuario.rol == 'Almacenero';
+		},
+		esVendedor(){
+			return this.$store.state.usuario && this.$store.state.usuario.rol == 'Vendedor';
+		}
+
+	},
+	created() {
+		this.$store.dispatch("autoLogin");
+	},
+	methods: {
+
 	}
+
 };
 </script>
