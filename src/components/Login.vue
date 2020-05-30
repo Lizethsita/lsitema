@@ -12,6 +12,9 @@
                     </v-text-field>
                     <v-text-field v-model="password" type="password" color="accent" label="Password" required>
                     </v-text-field>
+                    <v-flex class="red--text" v-if="error">
+                        {{error}}
+                    </v-flex>
                 </v-card-text>
                 <v-card-actions class="px-3 pb-3">
                     <v-flex text-xs-center>
@@ -29,7 +32,8 @@ export default {
     data(){
         return{
             email:'',
-            password:''
+            password:'',
+            error: null
         }
     },
     methods :{
@@ -41,7 +45,7 @@ export default {
             })
             .then(data => {        
                 this.$store.dispatch("guardarToken", data.token)
-                this.$router.push({ name: 'home' })
+                this.$router.push({ name: 'Home' })
             })
             .catch(err => {
                 //console.log(err.response);

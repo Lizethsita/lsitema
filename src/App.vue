@@ -176,8 +176,11 @@
 				<span class="hidden-sm-and-down">Sistema</span>
 			</v-toolbar-title>
 			<v-spacer />
-			<v-btn icon>
-				<v-icon>apps</v-icon>
+			<v-btn @click="salir" v-if="logueado" icon>
+				<v-icon>logout</v-icon> Salir 
+			</v-btn>
+			<v-btn :to="{name: 'login'}" v-else>
+				<v-icon>apps</v-icon> Login 
 			</v-btn>
 		</v-app-bar>
 		<v-content>
@@ -210,6 +213,7 @@ export default {
 		logueado(){
 			//ontener el usuario
 			return this.$store.state.usuario;
+			console.log(this.$store.state.usuario);
 		},
 		esAdministrador(){
 			return this.$store.state.usuario && this.$store.state.usuario.rol == 'Administrador';
@@ -226,6 +230,9 @@ export default {
 		this.$store.dispatch("autoLogin");
 	},
 	methods: {
+		salir(){
+			this.$store.dispatch("salir");
+		}
 
 	}
 

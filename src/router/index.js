@@ -8,7 +8,7 @@ import Usuario from '../components/Usuario.vue'
 import Cliente from '../components/Cliente.vue'
 import Proveedor from '../components/Proveedor.vue'
 import Login from '../components/Login.vue'
-import store from '../router'
+import store from '../store'
 
 
 Vue.use(VueRouter)
