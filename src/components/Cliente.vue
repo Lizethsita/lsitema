@@ -143,8 +143,10 @@ export default {
 	methods: {
 		listar() {
 			let me = this;
+			let header={"Authorization" : "Bearer " + this.$store.state.token};
+            let configuracion= {headers : header};
 			axios
-				.get('api/Personas/ListarClientes') 	 	 	
+				.get('api/Personas/ListarClientes',configuracion) 	 	 	
 				.then(function(response) {
 					console.log(response);
 					me.clientes = response.data;
@@ -184,6 +186,8 @@ export default {
 			if (this.validar()) {
 				return;
 			}
+			let header={"Authorization" : "Bearer " + this.$store.state.token};
+            let configuracion= {headers : header};
 			if (this.editedIndex > -1) {
 				//Código para editar
 				let me = this;
@@ -197,7 +201,7 @@ export default {
 						'direccion':me.direccion,
 						'telefono':me.telefono,
 						'email':me.email
-					})
+					}),configuracion
 					.then(function(response) {
 						me.close();
 						me.listar();
@@ -218,7 +222,7 @@ export default {
 						'direccion':me.direccion,
 						'telefono':me.telefono,
 						'email':me.email
-					})
+					},configuracion)
 					.then(function(response) {
 						me.close();
 						me.listar();

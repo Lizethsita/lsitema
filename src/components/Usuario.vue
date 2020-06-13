@@ -195,8 +195,10 @@ export default {
 	methods: {
 		listar() {
 			let me = this;
+			let header={"Authorization" : "Bearer " + this.$store.state.token};
+            let configuracion= {headers : header};
 			axios
-				.get('api/Usuarios/Listar') 	 	 	
+				.get('api/Usuarios/Listar',configuracion) 	 	 	
 				.then(function(response) {
 					console.log(response);
 					me.usuarios = response.data;
@@ -208,8 +210,10 @@ export default {
 		select() { 	
 			let me = this;
 			var rolesArray=[];
+			let header={"Authorization" : "Bearer " + this.$store.state.token};
+            let configuracion= {headers : header};
 			axios
-				.get('api/Roles/Select') 	 	 	
+				.get('api/Roles/Select',configuracion) 	 	 	
 				.then(function(response) {
 					console.log(response);
 					rolesArray=response.data;
@@ -258,6 +262,8 @@ export default {
 			if (this.validar()) {
 				return;
 			}
+			let header={"Authorization" : "Bearer " + this.$store.state.token};
+            let configuracion= {headers : header};
 			if (this.editedIndex > -1) {
 				//Código para editar
 				let me = this;
@@ -277,7 +283,7 @@ export default {
 						'email':me.email,
 						'password':me.password,
 						'act_password':me.actPassword
-					})
+					},configuracion)
 					.then(function(response) {
 						me.close();
 						me.listar();
@@ -299,7 +305,7 @@ export default {
 						'telefono':me.telefono,
 						'email':me.email,
                         'password':me.password
-					})
+					},configuracion)
 					.then(function(response) {
 						me.close();
 						me.listar();
@@ -352,8 +358,10 @@ export default {
 		},
 		activar() {
 			let me = this;
+			let header={"Authorization" : "Bearer " + this.$store.state.token};
+            let configuracion= {headers : header};
 			axios
-				.put('api/Usuarios/Activar/' + this.adId, {})
+				.put('api/Usuarios/Activar/' + this.adId, {},configuracion)
 				.then(function(response) {
 					me.adModal=0;
 					me.adAccion=0;
@@ -368,8 +376,10 @@ export default {
 		},
 		desactivar() {
 			let me = this;
+			let header={"Authorization" : "Bearer " + this.$store.state.token};
+            let configuracion= {headers : header};
 			axios
-				.put('api/Usuarios/Desactivar/' + this.adId, {})
+				.put('api/Usuarios/Desactivar/' + this.adId, {},configuracion)
 				.then(function(response) {
 					me.adModal=0;
 					me.adAccion=0;
